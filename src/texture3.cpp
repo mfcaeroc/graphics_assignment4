@@ -60,13 +60,13 @@ void read_maze()
    file >> playerStartX;
    file >> playerStartY;
 
-   maze.resize(mazeSizeX, vector<blocks>(mazeSizeY));
+   maze.resize(10, vector<blocks>(10));
    getline(file, fileLine);
 
-   for (int i = 0; i < mazeSizeX; i++)
+   for (int i = 0; i < 10; i++)
    {
       getline(file, fileLine);
-      for (int j = 0; j < mazeSizeY; j++)
+      for (int j = 0; j < 10; j++)
       {
          char type = fileLine[j];
 
@@ -82,7 +82,7 @@ void read_maze()
          {
             maze[i][j].type = blocktype::wood;
          }
-         else
+         else if (type == ' ')
          {
             maze[i][j].type = blocktype::nothing;
          }
@@ -120,9 +120,212 @@ void init_texture(char *name, unsigned char *&texture, int &xdim, int &ydim)
 //---------------------------------------
 // Function to draw 3D block
 //---------------------------------------
-void block(float xmin, float ymin, float zmin,
+void brick(float xmin, float ymin, float zmin,
            float xmax, float ymax, float zmax)
 {
+      // Init texture
+   int xdim, ydim;
+   unsigned char *texture;
+   init_texture((char *)"textures/brick.jpg", texture, xdim, ydim);
+   glEnable(GL_TEXTURE_2D);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, xdim, ydim, 0, GL_RGB, GL_UNSIGNED_BYTE, texture);
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+   // Define 8 vertices
+   float ax = xmin, ay = ymin, az = zmax;
+   float bx = xmax, by = ymin, bz = zmax;
+   float cx = xmax, cy = ymax, cz = zmax;
+   float dx = xmin, dy = ymax, dz = zmax;
+
+   float ex = xmin, ey = ymin, ez = zmin;
+   float fx = xmax, fy = ymin, fz = zmin;
+   float gx = xmax, gy = ymax, gz = zmin;
+   float hx = xmin, hy = ymax, hz = zmin;
+
+   // Draw 6 faces
+   glBegin(GL_POLYGON);  // Max texture coord 1.0
+   glTexCoord2f(0.0, 0.0);
+   glVertex3f(ax, ay, az);
+   glTexCoord2f(1.0, 0.0);
+   glVertex3f(bx, by, bz);
+   glTexCoord2f(1.0, 1.0);
+   glVertex3f(cx, cy, cz);
+   glTexCoord2f(0.0, 1.0);
+   glVertex3f(dx, dy, dz);
+   glEnd();
+
+   glBegin(GL_POLYGON);  // Max texture coord 1.0
+   glTexCoord2f(0.0, 0.0);
+   glVertex3f(ex, ey, ez);
+   glTexCoord2f(1.0, 0.0);
+   glVertex3f(ax, ay, az);
+   glTexCoord2f(1.0, 1.0);
+   glVertex3f(dx, dy, dz);
+   glTexCoord2f(0.0, 1.0);
+   glVertex3f(hx, hy, hz);
+   glEnd();
+
+   glBegin(GL_POLYGON);  // Max texture coord 1.0
+   glTexCoord2f(0.0, 0.0);
+   glVertex3f(fx, fy, fz);
+   glTexCoord2f(1.0, 0.0);
+   glVertex3f(ex, ey, ez);
+   glTexCoord2f(1.0, 1.0);
+   glVertex3f(hx, hy, hz);
+   glTexCoord2f(0.0, 1.0);
+   glVertex3f(gx, gy, gz);
+   glEnd();
+
+   glBegin(GL_POLYGON);  // Max texture coord 1.0
+   glTexCoord2f(0.0, 0.0);
+   glVertex3f(bx, by, bz);
+   glTexCoord2f(1.0, 0.0);
+   glVertex3f(fx, fy, fz);
+   glTexCoord2f(1.0, 1.0);
+   glVertex3f(gx, gy, gz);
+   glTexCoord2f(0.0, 1.0);
+   glVertex3f(cx, cy, cz);
+   glEnd();
+
+   glBegin(GL_POLYGON);  // Max texture coord 3.0
+   glTexCoord2f(0.0, 0.0);
+   glVertex3f(ax, ay, az);
+   glTexCoord2f(2.0, 0.0);
+   glVertex3f(ex, ey, ez);
+   glTexCoord2f(2.0, 2.0);
+   glVertex3f(fx, fy, fz);
+   glTexCoord2f(0.0, 2.0);
+   glVertex3f(bx, by, bz);
+   glEnd();
+
+   glBegin(GL_POLYGON);  // Max texture coord 3.0
+   glTexCoord2f(0.0, 0.0);
+   glVertex3f(gx, gy, gz);
+   glTexCoord2f(3.0, 0.0);
+   glVertex3f(cx, cy, cz);
+   glTexCoord2f(3.0, 3.0);
+   glVertex3f(dx, dy, dz);
+   glTexCoord2f(0.0, 3.0);
+   glVertex3f(hx, hy, hz);
+   glEnd();
+}
+
+//---------------------------------------
+// Function to draw 3D block
+//---------------------------------------
+void wood(float xmin, float ymin, float zmin,
+           float xmax, float ymax, float zmax)
+{
+      // Init texture
+   int xdim, ydim;
+   unsigned char *texture;
+   init_texture((char *)"textures/wood.jpg", texture, xdim, ydim);
+   glEnable(GL_TEXTURE_2D);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, xdim, ydim, 0, GL_RGB, GL_UNSIGNED_BYTE, texture);
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+   
+   // Define 8 vertices
+   float ax = xmin, ay = ymin, az = zmax;
+   float bx = xmax, by = ymin, bz = zmax;
+   float cx = xmax, cy = ymax, cz = zmax;
+   float dx = xmin, dy = ymax, dz = zmax;
+
+   float ex = xmin, ey = ymin, ez = zmin;
+   float fx = xmax, fy = ymin, fz = zmin;
+   float gx = xmax, gy = ymax, gz = zmin;
+   float hx = xmin, hy = ymax, hz = zmin;
+
+   // Draw 6 faces
+   glBegin(GL_POLYGON);  // Max texture coord 1.0
+   glTexCoord2f(0.0, 0.0);
+   glVertex3f(ax, ay, az);
+   glTexCoord2f(1.0, 0.0);
+   glVertex3f(bx, by, bz);
+   glTexCoord2f(1.0, 1.0);
+   glVertex3f(cx, cy, cz);
+   glTexCoord2f(0.0, 1.0);
+   glVertex3f(dx, dy, dz);
+   glEnd();
+
+   glBegin(GL_POLYGON);  // Max texture coord 1.0
+   glTexCoord2f(0.0, 0.0);
+   glVertex3f(ex, ey, ez);
+   glTexCoord2f(1.0, 0.0);
+   glVertex3f(ax, ay, az);
+   glTexCoord2f(1.0, 1.0);
+   glVertex3f(dx, dy, dz);
+   glTexCoord2f(0.0, 1.0);
+   glVertex3f(hx, hy, hz);
+   glEnd();
+
+   glBegin(GL_POLYGON);  // Max texture coord 1.0
+   glTexCoord2f(0.0, 0.0);
+   glVertex3f(fx, fy, fz);
+   glTexCoord2f(1.0, 0.0);
+   glVertex3f(ex, ey, ez);
+   glTexCoord2f(1.0, 1.0);
+   glVertex3f(hx, hy, hz);
+   glTexCoord2f(0.0, 1.0);
+   glVertex3f(gx, gy, gz);
+   glEnd();
+
+   glBegin(GL_POLYGON);  // Max texture coord 1.0
+   glTexCoord2f(0.0, 0.0);
+   glVertex3f(bx, by, bz);
+   glTexCoord2f(1.0, 0.0);
+   glVertex3f(fx, fy, fz);
+   glTexCoord2f(1.0, 1.0);
+   glVertex3f(gx, gy, gz);
+   glTexCoord2f(0.0, 1.0);
+   glVertex3f(cx, cy, cz);
+   glEnd();
+
+   glBegin(GL_POLYGON);  // Max texture coord 3.0
+   glTexCoord2f(0.0, 0.0);
+   glVertex3f(ax, ay, az);
+   glTexCoord2f(2.0, 0.0);
+   glVertex3f(ex, ey, ez);
+   glTexCoord2f(2.0, 2.0);
+   glVertex3f(fx, fy, fz);
+   glTexCoord2f(0.0, 2.0);
+   glVertex3f(bx, by, bz);
+   glEnd();
+
+   glBegin(GL_POLYGON);  // Max texture coord 3.0
+   glTexCoord2f(0.0, 0.0);
+   glVertex3f(gx, gy, gz);
+   glTexCoord2f(3.0, 0.0);
+   glVertex3f(cx, cy, cz);
+   glTexCoord2f(3.0, 3.0);
+   glVertex3f(dx, dy, dz);
+   glTexCoord2f(0.0, 3.0);
+   glVertex3f(hx, hy, hz);
+   glEnd();
+}
+
+//---------------------------------------
+// Function to draw 3D block
+//---------------------------------------
+void rock(float xmin, float ymin, float zmin,
+           float xmax, float ymax, float zmax)
+{
+      // Init texture
+   int xdim, ydim;
+   unsigned char *texture;
+   init_texture((char *)"textures/brick.jpg", texture, xdim, ydim);
+   glEnable(GL_TEXTURE_2D);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, xdim, ydim, 0, GL_RGB, GL_UNSIGNED_BYTE, texture);
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+   
    // Define 8 vertices
    float ax = xmin, ay = ymin, az = zmax;
    float bx = xmax, by = ymin, bz = zmax;
@@ -213,17 +416,6 @@ void init()
    glLoadIdentity();
    glOrtho(-2.0, 2.0, -2.0, 2.0, -2.0, 2.0);
    glEnable(GL_DEPTH_TEST);
-
-   // Init texture
-   int xdim, ydim;
-   unsigned char *texture;
-   init_texture((char *)"textures/brick.jpg", texture, xdim, ydim);
-   glEnable(GL_TEXTURE_2D);
-   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, xdim, ydim, 0, GL_RGB, GL_UNSIGNED_BYTE, texture);
-   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 }
 
 //---------------------------------------
@@ -231,27 +423,25 @@ void init()
 //---------------------------------------
 void draw_maze()
 {
-   for(int i = 0; i < mazeSizeX; i++)
+   for(int i = 0; i < 10; i++)
    {
-      for(int j=0; j < mazeSizeY; j++)
+      for(int j=0; j < 10; j++)
       {
          if(maze[i][j].type == blocktype::rock)
          {
-            glColor3f(0.5, 0.5, 0.5);
-            glBegin(GL_POLYGON);
-            glVertex3f(i, j, 0);
-            glVertex3f(i+1, j, 0);
-            glVertex3f(i+1, j+1, 0);
-            glVertex3f(i, j+1, 0);
-            glEnd();
+            rock(i, j, 0, i+1, j+1, 1);
          }
          else if(maze[i][j].type == blocktype::brick)
          {
-            block(i, j, 0, i+1, j+1, 1);
+            brick(i, j, 0, i+1, j+1, 1);
          }
          else if(maze[i][j].type == blocktype::wood)
          {
-            block(i, j, 0, i+1, j+1, 1);
+            wood(i, j, 0, i+1, j+1, 1);
+         }
+         else 
+         {
+            printf("nothing\n");
          }
       }
    }
