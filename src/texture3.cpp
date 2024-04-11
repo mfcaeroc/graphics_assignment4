@@ -8,6 +8,10 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <fstream>
+#include <vector>
+#include <iostream>
+using namespace std;
 #ifdef MAC
 #include <GLUT/glut.h>
 #else
@@ -25,6 +29,67 @@ int xpos = 0;
 int ypos = 0;
 int zpos = 0;
 int mode = ROTATE;
+
+enum class blocktype {
+   rock,
+   brick,
+   wood,
+   nothing
+};
+
+struct blocks {
+   blocktype type;
+};
+
+vector<vector<blocks>> maze;
+int mazeSizeX;
+int mazeSizeY;
+int playerStartX;
+int playerStartY;
+
+//---------------------------------------
+// Read maze.txt
+//---------------------------------------
+void read_maze()
+{
+   ifstream file("maze.txt");
+   string fileLine;
+
+   file >> mazeSizeX;
+   file >> mazeSizeY;
+   file >> playerStartX;
+   file >> playerStartY;
+
+   maze.resize(mazeSizeX, vector<blocks>(mazeSizeY));
+   getline(file, fileLine);
+
+   for (int i = 0; i < mazeSizeX; i++)
+   {
+      getline(file, fileLine);
+      for (int j = 0; j < mazeSizeY; j++)
+      {
+         char type = fileLine[j];
+
+         if (type == 'r')
+         {
+            maze[i][j].type = blocktype::rock;
+         }
+         else if (type == 'b')
+         {
+            maze[i][j].type = blocktype::brick;
+         }
+         else if (type == 'w')
+         {
+            maze[i][j].type = blocktype::wood;
+         }
+         else
+         {
+            maze[i][j].type = blocktype::nothing;
+         }
+      }
+   }
+   file.close();
+}
 
 //---------------------------------------
 // Initialize texture image
@@ -162,6 +227,37 @@ void init()
 }
 
 //---------------------------------------
+// draw maze
+//---------------------------------------
+void draw_maze()
+{
+   for(int i = 0; i < mazeSizeX; i++)
+   {
+      for(int j=0; j < mazeSizeY; j++)
+      {
+         if(maze[i][j].type == blocktype::rock)
+         {
+            glColor3f(0.5, 0.5, 0.5);
+            glBegin(GL_POLYGON);
+            glVertex3f(i, j, 0);
+            glVertex3f(i+1, j, 0);
+            glVertex3f(i+1, j+1, 0);
+            glVertex3f(i, j+1, 0);
+            glEnd();
+         }
+         else if(maze[i][j].type == blocktype::brick)
+         {
+            block(i, j, 0, i+1, j+1, 1);
+         }
+         else if(maze[i][j].type == blocktype::wood)
+         {
+            block(i, j, 0, i+1, j+1, 1);
+         }
+      }
+   }
+}
+
+//---------------------------------------
 // Display callback for OpenGL
 //---------------------------------------
 void display()
@@ -175,8 +271,10 @@ void display()
    glRotatef(yangle, 0.0, 1.0, 0.0);
    glRotatef(zangle, 0.0, 0.0, 1.0);
 
+   draw_maze();
+
    // Draw objects
-   block(-1, -1, -1, 1, 1, 1);
+   // block(-1, -1, -1, 1, 1, 1);
    glFlush();
 }
 
@@ -270,6 +368,8 @@ void mouse(int button, int state, int x, int y)
 //---------------------------------------
 int main(int argc, char *argv[])
 {
+   read_maze();
+
    // Create OpenGL window
    glutInit(&argc, argv);
    glutInitWindowSize(500, 500);
