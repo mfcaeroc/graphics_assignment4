@@ -1,9 +1,9 @@
 //---------------------------------------
 // Program: texture3.cpp
 // Purpose: Texture map brick photograph
-//          onto a cube model.
-// Author:  John Gauch
-// Date:    April 2011
+//          onto a cube model maze.
+// Author:  Fernanda Caero
+// Date:    April 2024
 //---------------------------------------
 #include <math.h>
 #include <stdio.h>
@@ -46,6 +46,12 @@ int mazeSizeX;
 int mazeSizeY;
 int playerStartX;
 int playerStartY;
+
+unsigned char *brick_texture;
+unsigned char *wood_texture;
+unsigned char *rock_texture;
+unsigned char *gravel_texture;
+int xdim, ydim;
 
 //---------------------------------------
 // Read maze.txt
@@ -99,11 +105,11 @@ void init_texture(char *name, unsigned char *&texture, int &xdim, int &ydim)
    // Read jpg image
    im_color image;
    image.ReadJpg(name);
-   printf("Reading image %s\n", name);
+   //printf("Reading image %s\n", name);
    xdim = 1; while (xdim < image.R.Xdim) xdim*=2; xdim /=2;
    ydim = 1; while (ydim < image.R.Ydim) ydim*=2; ydim /=2;
    image.Interpolate(xdim, ydim);
-   printf("Interpolating to %d by %d\n", xdim, ydim);
+   //printf("Interpolating to %d by %d\n", xdim, ydim);
 
    // Copy image into texture array
    texture = (unsigned char *)malloc((unsigned int)(xdim*ydim*3));
@@ -124,11 +130,11 @@ void brick(float xmin, float ymin, float zmin,
            float xmax, float ymax, float zmax)
 {
       // Init texture
-   int xdim, ydim;
-   unsigned char *texture;
-   init_texture((char *)"textures/brick.jpg", texture, xdim, ydim);
+   //int xdim, ydim;
+   //unsigned char *texture;
+   //init_texture((char *)"textures/brick.jpg", texture, xdim, ydim);
    glEnable(GL_TEXTURE_2D);
-   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, xdim, ydim, 0, GL_RGB, GL_UNSIGNED_BYTE, texture);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, xdim, ydim, 0, GL_RGB, GL_UNSIGNED_BYTE, brick_texture);
    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -220,11 +226,11 @@ void wood(float xmin, float ymin, float zmin,
            float xmax, float ymax, float zmax)
 {
       // Init texture
-   int xdim, ydim;
-   unsigned char *texture;
-   init_texture((char *)"textures/wood.jpg", texture, xdim, ydim);
+   //int xdim, ydim;
+   //unsigned char *texture;
+   //init_texture((char *)"textures/wood.jpg", texture, xdim, ydim);
    glEnable(GL_TEXTURE_2D);
-   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, xdim, ydim, 0, GL_RGB, GL_UNSIGNED_BYTE, texture);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, xdim, ydim, 0, GL_RGB, GL_UNSIGNED_BYTE, wood_texture);
    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -316,11 +322,11 @@ void rock(float xmin, float ymin, float zmin,
            float xmax, float ymax, float zmax)
 {
       // Init texture
-   int xdim, ydim;
-   unsigned char *texture;
-   init_texture((char *)"textures/rock.jpg", texture, xdim, ydim);
+   //int xdim, ydim;
+   //unsigned char *texture;
+   //init_texture((char *)"textures/rock.jpg", texture, xdim, ydim);
    glEnable(GL_TEXTURE_2D);
-   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, xdim, ydim, 0, GL_RGB, GL_UNSIGNED_BYTE, texture);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, xdim, ydim, 0, GL_RGB, GL_UNSIGNED_BYTE, rock_texture);
    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -411,12 +417,12 @@ void rock(float xmin, float ymin, float zmin,
 void gravel(float xmin, float ymin, float zmin,
            float xmax, float ymax, float zmax)
 {
-      // Init texture
-   int xdim, ydim;
-   unsigned char *texture;
-   init_texture((char *)"textures/gravel.jpg", texture, xdim, ydim);
+   // Init texture
+   // int xdim, ydim;
+   // unsigned char *texture;
+   // init_texture((char *)"textures/gravel.jpg", texture, xdim, ydim);
    glEnable(GL_TEXTURE_2D);
-   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, xdim, ydim, 0, GL_RGB, GL_UNSIGNED_BYTE, texture);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, xdim, ydim, 0, GL_RGB, GL_UNSIGNED_BYTE, gravel_texture);
    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -510,8 +516,14 @@ void init()
    glClearColor(0.0, 0.0, 0.0, 1.0);
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
-   glOrtho(-2.0, 2.0, -2.0, 2.0, -2.0, 2.0);
+   glOrtho(-10.0, 10.0, -10.0, 10.0, -10.0, 10.0);
    glEnable(GL_DEPTH_TEST);
+
+   init_texture((char *)"textures/brick.jpg", brick_texture, xdim, ydim);
+   init_texture((char *)"textures/wood.jpg", wood_texture, xdim, ydim);
+   init_texture((char *)"textures/rock.jpg", rock_texture, xdim, ydim);
+   init_texture((char *)"textures/gravel.jpg", gravel_texture, xdim, ydim);
+
 }
 
 //---------------------------------------
@@ -539,7 +551,7 @@ void draw_maze()
          }
          else if (maze[i][j].type == blocktype::nothing)
          {
-            printf("nothing\n");
+            //printf("nothing\n");
          }
       }
    }
